@@ -6,12 +6,16 @@ import {
   LineChartOutlined,
   SolutionOutlined,
   RobotOutlined,
+  BarChartOutlined,
+  FileSearchOutlined,
 } from '@ant-design/icons';
 
 import Dashboard from './pages/Dashboard';
 import TrendAnalysis from './pages/TrendAnalysis';
 import CaseManagement from './pages/CaseManagement';
 import AIRecommendation from './pages/AIRecommendation';
+import EfficiencyScore from './pages/EfficiencyScore';
+import TaskMonitor from './pages/TaskMonitor';
 
 const { Header, Content, Sider } = Layout;
 
@@ -36,10 +40,24 @@ const menuItems = [
     icon: <RobotOutlined />,
     label: <Link to="/ai">AI智能建议</Link>,
   },
+  {
+    key: '/efficiency',
+    icon: <BarChartOutlined />,
+    label: <Link to="/efficiency">效率评分</Link>,
+  },
+  {
+    key: '/task',
+    icon: <FileSearchOutlined />,
+    label: <Link to="/task">尽调助手</Link>,
+  },
 ];
 
 function AppLayout() {
   const location = useLocation();
+  const currentPath = location.pathname.split('/')[1] || 'dashboard';
+  const isEfficiencyScore = location.pathname.startsWith('/efficiency-score/');
+  const isTaskMonitor = location.pathname.startsWith('/task/');
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider>
@@ -49,7 +67,7 @@ function AppLayout() {
         <Menu
           theme="dark"
           mode="inline"
-          selectedKeys={[location.pathname]}
+          selectedKeys={[isEfficiencyScore ? '/efficiency' : isTaskMonitor ? '/task' : `/${currentPath}`]}
           items={menuItems}
         />
       </Sider>
@@ -62,6 +80,10 @@ function AppLayout() {
             <Route path="/trend" element={<TrendAnalysis />} />
             <Route path="/case" element={<CaseManagement />} />
             <Route path="/ai" element={<AIRecommendation />} />
+            <Route path="/efficiency" element={<EfficiencyScore />} />
+            <Route path="/efficiency-score/:id" element={<EfficiencyScore />} />
+            <Route path="/task" element={<TaskMonitor />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Content>
       </Layout>

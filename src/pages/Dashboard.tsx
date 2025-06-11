@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Row, Col, Card, Statistic, Table, Tag } from 'antd';
+import { Row, Col, Card, Statistic, Table, Tag, Button } from 'antd';
 import { Pie, Column } from '@ant-design/charts';
+import { useNavigate } from 'react-router-dom';
 
 // 问题类型及数量
 const problemTypes = [
-  { type: '营业执照原件影像文件未上传', value: 20 },
-  { type: '客户预约信息存在错误或缺失', value: 15 },
-  { type: '客户因个人原因主动撤销开户申请', value: 10 },
-  { type: '公司方面存在未明确说明的其他原因导致开户失败', value: 5 },
-  { type: '客户已在本行开立账户，本次开户申请因重复开户被退回', value: 8 },
-  { type: '客户尽职调查未通过，导致开户流程无法继续', value: 12 },
-  { type: '客户未通过尽职调查或不符合我行开户准入标准，导致不符合账户设立条件', value: 7 },
+  { type: '账户开立阶段-账户唯一性规则限制', value: 20 },
+  { type: '材料预审阶段-影像质量问题', value: 15 },
+  { type: '行为驱动归因-预约行为中断', value: 10 },
+  { type: '账户开立阶段-开户条件不符合监管规定', value: 5 },
+  { type: '尽职调查阶段-企业经营真实性存疑', value: 8 },
+  { type: '预约资料提交阶段-影像资料提交问题', value: 8 },
+  { type: '材料预审阶段-资料缺失或无效', value: 12 },
+  { type: '标准电核阶段-电话无法接通', value: 7 },
   { type: '其他必要影像资料未上传，导致开户审核流程无法完成', value: 9 },
   { type: '营业执照及法人证件影像未上传或上传不合规，导致无法完成开户资料审核', value: 11 },
   { type: '法人未在规定时间内完成双录流程，导致开户失败', value: 6 },
@@ -30,43 +32,49 @@ interface BranchDistribution { [key: string]: BranchData[]; }
 
 // 各问题类型在不同网点的分布
 const branchDistribution: BranchDistribution = {
-  '营业执照原件影像文件未上传': [
+  '账户开立阶段-账户唯一性规则限制': [
     { branch: '北京分行', value: 8 },
     { branch: '上海分行', value: 5 },
     { branch: '广州分行', value: 4 },
     { branch: '深圳分行', value: 3 },
   ],
-  '客户预约信息存在错误或缺失': [
+  '材料预审阶段-影像质量问题': [
     { branch: '北京分行', value: 2 },
     { branch: '上海分行', value: 6 },
     { branch: '广州分行', value: 4 },
     { branch: '深圳分行', value: 3 },
   ],
-  '客户因个人原因主动撤销开户申请': [
+  '行为驱动归因-预约行为中断': [
     { branch: '北京分行', value: 1 },
     { branch: '上海分行', value: 3 },
     { branch: '广州分行', value: 4 },
     { branch: '深圳分行', value: 2 },
   ],
-  '公司方面存在未明确说明的其他原因导致开户失败': [
+  '账户开立阶段-开户条件不符合监管规定': [
     { branch: '北京分行', value: 1 },
     { branch: '上海分行', value: 2 },
     { branch: '广州分行', value: 1 },
     { branch: '深圳分行', value: 1 },
   ],
-  '客户已在本行开立账户，本次开户申请因重复开户被退回': [
+  '尽职调查阶段-企业经营真实性存疑': [
     { branch: '北京分行', value: 3 },
     { branch: '上海分行', value: 2 },
     { branch: '广州分行', value: 2 },
     { branch: '深圳分行', value: 1 },
   ],
-  '客户尽职调查未通过，导致开户流程无法继续': [
+  '预约资料提交阶段-影像资料提交问题': [
+    { branch: '北京分行', value: 3 },
+    { branch: '上海分行', value: 2 },
+    { branch: '广州分行', value: 2 },
+    { branch: '深圳分行', value: 1 },
+  ],
+  '材料预审阶段-资料缺失或无效': [
     { branch: '北京分行', value: 4 },
     { branch: '上海分行', value: 3 },
     { branch: '广州分行', value: 3 },
     { branch: '深圳分行', value: 2 },
   ],
-  '客户未通过尽职调查或不符合我行开户准入标准，导致不符合账户设立条件': [
+  '标准电核阶段-电话无法接通': [
     { branch: '北京分行', value: 2 },
     { branch: '上海分行', value: 2 },
     { branch: '广州分行', value: 1 },
@@ -138,42 +146,42 @@ const branchDistribution: BranchDistribution = {
 const tableData = [
   {
     id: 'CASE001',
-    type: '营业执照原件影像文件未上传',
+    type: '账户开立阶段-账户唯一性规则限制',
     branch: '北京分行',
-    description: '客户上传的营业执照照片模糊不清，系统无法识别，需客户重新上传清晰原件。',
+    description: '客户已在其他银行开立基本户，根据监管规定，同一企业只能开立一个基本户，无法在我行继续开立基本户。',
     status: '已解决',
   },
   {
     id: 'CASE002',
-    type: '营业执照原件影像文件未上传',
+    type: '账户开立阶段-账户唯一性规则限制',
     branch: '上海分行',
-    description: '客户误将营业执照副本上传为其他资料，审核人员电话联系后已补传。',
+    description: '系统检测到该企业已在其他银行开立基本户，根据《人民币银行结算账户管理办法》规定，企业只能选择一家银行开立基本户，因此无法受理本次开户申请。',
     status: '处理中',
   },
   {
     id: 'CASE003',
-    type: '客户预约信息存在错误或缺失',
+    type: '材料预审阶段-影像质量问题',
     branch: '广州分行',
-    description: '预约联系人手机号填写有误，导致无法及时通知客户到场办理。',
+    description: '客户上传的法人身份证照片存在严重模糊、反光等问题，导致系统无法准确识别身份证号码、姓名等关键信息，且照片边缘存在明显阴影，影响证件真实性判断，已通知客户重新上传清晰的身份证原件照片。',
     status: '处理中',
   },
   {
     id: 'CASE004',
-    type: '客户预约信息存在错误或缺失',
+    type: '材料预审阶段-影像质量问题',
     branch: '深圳分行',
-    description: '客户未填写企业注册地址，系统提示信息不完整。',
+    description: '客户上传的营业执照影像不完整，仅包含企业名称和统一社会信用代码部分，缺少经营范围、注册资本、成立日期等关键信息，且影像边缘存在裁剪痕迹，影响证件真实性判断，已通知客户重新上传完整的营业执照原件照片。',
     status: '已解决',
   },
   {
     id: 'CASE005',
-    type: '客户因个人原因主动撤销开户申请',
+    type: '行为驱动归因-预约行为中断',
     branch: '北京分行',
     description: '客户因临时出差，无法按时到网点办理，主动申请撤销本次开户。',
     status: '处理中',
   },
   {
     id: 'CASE006',
-    type: '客户因个人原因主动撤销开户申请',
+    type: '行为驱动归因-预约行为中断',
     branch: '广州分行',
     description: '客户因公司内部决策调整，决定暂缓开户，已电话通知银行撤销。',
     status: '已解决',
@@ -184,6 +192,7 @@ const tableData = [
 const Dashboard: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>(problemTypes[0].type);
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  const navigate = useNavigate();
 
   // 饼图配置
   const pieConfig = {
@@ -276,6 +285,18 @@ const Dashboard: React.FC = () => {
       key: 'status',
       render: (status: string) => <Tag color={status === '已解决' ? 'success' : 'processing'}>{status}</Tag>,
     },
+    {
+      title: '操作',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <Button 
+          type="link" 
+          onClick={() => navigate(`/efficiency-score/${record.id}`)}
+        >
+          查看效率评分
+        </Button>
+      ),
+    },
   ];
 
   // 联动过滤
@@ -316,7 +337,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title={`“${selectedType}”在各网点分布`}>
+          <Card title={`"${selectedType}"在各网点分布`}>
             <Column {...columnConfig} />
           </Card>
         </Col>

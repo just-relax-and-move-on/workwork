@@ -11,6 +11,7 @@ export default defineConfig({
         target: 'http://127.0.0.1:5000',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path,
       },
       '/start_task': {
         target: 'http://localhost:8000',

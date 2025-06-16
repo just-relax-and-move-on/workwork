@@ -8,6 +8,7 @@ import {
   RobotOutlined,
   BarChartOutlined,
   FileSearchOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 
 import Dashboard from './pages/Dashboard';
@@ -16,6 +17,8 @@ import CaseManagement from './pages/CaseManagement';
 import AIRecommendation from './pages/AIRecommendation';
 import EfficiencyScore from './pages/EfficiencyScore';
 import TaskMonitor from './pages/TaskMonitor';
+import ApiKeyAuth from './pages/ApiKeyAuth';
+import { useApiKey } from './hooks/useApiKey';
 
 const { Header, Content, Sider } = Layout;
 
@@ -52,11 +55,36 @@ const menuItems = [
   },
 ];
 
+// 路由守卫组件
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { apiKey } = useApiKey();
+  const location = useLocation();
+
+  // 如果没有 API Key 且不在认证页面，重定向到认证页面
+  if (!apiKey && location.pathname !== '/auth') {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // 如果有 API Key 且在认证页面，重定向到 dashboard
+  if (apiKey && location.pathname === '/auth') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // 其他情况正常渲染
+  return <>{children}</>;
+};
+
 function AppLayout() {
   const location = useLocation();
   const currentPath = location.pathname.split('/')[1] || 'dashboard';
   const isEfficiencyScore = location.pathname.startsWith('/efficiency-score/');
   const isTaskMonitor = location.pathname.startsWith('/task/');
+  const { removeApiKey } = useApiKey();
+
+  const handleLogout = () => {
+    removeApiKey();
+    window.location.href = '/auth';
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -72,7 +100,9 @@ function AppLayout() {
         />
       </Sider>
       <Layout>
-        <Header style={{ background: '#fff', padding: 0 }} />
+        <Header style={{ background: '#fff', padding: '0 16px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <LogoutOutlined onClick={handleLogout} style={{ fontSize: '18px', cursor: 'pointer' }} />
+        </Header>
         <Content style={{ margin: '16px' }}>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
@@ -91,10 +121,17 @@ function AppLayout() {
   );
 }
 
-const App: React.FC = () => (
-  <Router>
-    <AppLayout />
-  </Router>
-);
+const App: React.FC = () => {
+  return (
+    <Router>
+      <PrivateRoute>
+        <Routes>
+          <Route path="/auth" element={<ApiKeyAuth />} />
+          <Route path="/*" element={<AppLayout />} />
+        </Routes>
+      </PrivateRoute>
+    </Router>
+  );
+};
 
 export default App;

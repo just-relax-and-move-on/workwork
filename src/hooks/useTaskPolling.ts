@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { MainTask, SubTask, TaskSummary } from '@/types';
 import { API_ENDPOINTS } from '@/config/api';
+import apiClient from '@/config/api';
 
 interface UseTaskPollingResult {
   mainTask: MainTask | undefined;
@@ -21,11 +22,8 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
       if (!batchNo) {
         throw new Error('No batch number provided');
       }
-      const response = await fetch(API_ENDPOINTS.task.status(batchNo));
-      if (!response.ok) {
-        throw new Error('Failed to fetch task status');
-      }
-      const data = await response.json();
+      const response = await apiClient.get(API_ENDPOINTS.task.status(batchNo));
+      const data = response.data;
       return {
         id: 0,
         batch_no: batchNo,
@@ -51,11 +49,8 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
       if (!batchNo) {
         throw new Error('No batch number provided');
       }
-      const response = await fetch(API_ENDPOINTS.task.questions(batchNo));
-      if (!response.ok) {
-        throw new Error('Failed to fetch task questions');
-      }
-      const tasks = await response.json();
+      const response = await apiClient.get(API_ENDPOINTS.task.questions(batchNo));
+      const tasks = response.data;
       return tasks.map((task: any) => ({
         id: task.id || 0,
         question_no: task.question_no || '',
@@ -84,11 +79,8 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
       if (!batchNo) {
         throw new Error('No batch number provided');
       }
-      const response = await fetch(API_ENDPOINTS.task.summary(batchNo));
-      if (!response.ok) {
-        throw new Error('Failed to fetch task summary');
-      }
-      const data = await response.json();
+      const response = await apiClient.get(API_ENDPOINTS.task.summary(batchNo));
+      const data = response.data;
       return {
         summary_question: data.summary_question || '',
         summary_answer: data.summary_answer || '',
@@ -101,14 +93,11 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
     enabled: !!batchNo && mainTask?.status === 'completed',
   });
 
-  const isLoading = isMainTaskLoading || isSubTasksLoading || isSummaryLoading;
-  const error = mainTaskError || subTasksError || summaryError || null;
-
   return {
     mainTask,
     subTasks,
     summary,
-    isLoading,
-    error,
+    isLoading: isMainTaskLoading || isSubTasksLoading || isSummaryLoading,
+    error: mainTaskError || subTasksError || summaryError,
   };
 }; 

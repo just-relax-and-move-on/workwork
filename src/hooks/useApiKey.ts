@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
 import { ApiKey, ApiResponse } from '@/types/api';
 import apiClient from '@/config/api';
+import { API_ENDPOINTS } from '@/config/api';
 
 const API_KEY_STORAGE_KEY = 'api_key';
 
@@ -31,7 +32,7 @@ export const useApiKey = () => {
   const validateApiKey = useCallback(async (key: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post('/api/auth/token', null, {
+      const response = await apiClient.post(API_ENDPOINTS.auth.token, null, {
         headers: {
           'X-API-Key': key,
         },

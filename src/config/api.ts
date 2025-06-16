@@ -5,16 +5,16 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const API_ENDPOINTS = {
   auth: {
-    token: '/api/auth/token',
+    token: '/auth/token',
   },
   admin: {
-    apiKeys: '/api/admin/api-keys',
-    apiKeyLogs: '/api/admin/api-keys/logs',
+    apiKeys: '/admin/api-keys',
+    apiKeyLogs: '/admin/api-keys/logs',
   },
   task: {
-    status: (batchNo: string) => `/api/task/${batchNo}/status`,
-    questions: (batchNo: string) => `/api/task/${batchNo}/questions`,
-    summary: (batchNo: string) => `/api/task/${batchNo}/summary`,
+    status: (batchNo: string) => `/task/${batchNo}/status`,
+    questions: (batchNo: string) => `/task/${batchNo}/questions`,
+    summary: (batchNo: string) => `/task/${batchNo}/summary`,
   },
 };
 

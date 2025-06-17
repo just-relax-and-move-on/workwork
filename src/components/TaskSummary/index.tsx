@@ -122,13 +122,15 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ summary }) => {
     >
       <Card>
         <Space direction="vertical" style={{ width: '100%' }}>
+          {/* 
           <Text strong>问题：</Text>
           <MarkdownContent>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {summary.summary_question}
             </ReactMarkdown>
           </MarkdownContent>
-          <Text strong>回答：</Text>
+           */}
+          <Text strong>结构性分析：</Text>
           <MarkdownContent>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {summary.summary_answer}

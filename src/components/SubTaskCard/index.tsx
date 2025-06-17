@@ -146,7 +146,7 @@ const SubTaskCard: React.FC<SubTaskCardProps> = ({ task }) => {
     >
       <StyledCard>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <Text strong>{task.title}</Text>
+          <Text strong>{task.origin_question}</Text>
           <StatusTag status={task.status}>{task.status}</StatusTag>
         </div>
         

@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { MainTask, SubTask, TaskSummary } from '@/types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { MainTask, SubTask, TaskSummary } from '@/types/task';
 import { API_ENDPOINTS } from '@/config/api';
 import apiClient from '@/config/api';
 
@@ -12,6 +12,8 @@ interface UseTaskPollingResult {
 }
 
 export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
+  const queryClient = useQueryClient();
+
   const {
     data: mainTask,
     isLoading: isMainTaskLoading,
@@ -33,7 +35,10 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
         completed_at: data.completed_at || null
       };
     },
-    refetchInterval: 5000,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      return data?.status === 'completed' || data?.status === 'failed' ? false : 5000;
+    },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     enabled: !!batchNo,
@@ -63,10 +68,13 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
                  task.status === 'failed' ? 0 : 0
       }));
     },
-    refetchInterval: 5000,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      return data && data.length > 0 && data.every(task => task.status === 'completed' || task.status === 'failed') ? false : 5000;
+    },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    enabled: !!batchNo,
+    enabled: !!batchNo && mainTask?.status === 'running',
   });
 
   const {
@@ -87,10 +95,14 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
         status: data.status || 'pending'
       };
     },
-    refetchInterval: 5000,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      return data?.status === 'completed' || data?.status === 'failed' ? false : 5000;
+    },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    enabled: !!batchNo && mainTask?.status === 'completed',
+    enabled: !!batchNo && Array.isArray(subTasks) && subTasks.length > 0 && 
+      subTasks.every(task => task.status === 'completed' || task.status === 'failed'),
   });
 
   return {

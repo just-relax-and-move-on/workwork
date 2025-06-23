@@ -25,14 +25,14 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
         throw new Error('No batch number provided');
       }
       const response = await apiClient.get(API_ENDPOINTS.task.status(batchNo));
-      const data = response.data;
+      console.log('Main task response:', response.data);
       return {
-        id: 0,
+        id: response.data.id || 0,
         batch_no: batchNo,
-        title: '企业尽调分析任务',
-        status: data.status || 'pending',
-        created_at: data.created_at || new Date().toISOString(),
-        completed_at: data.completed_at || null
+        title: response.data.title || '企业尽调分析任务',
+        status: response.data.status || 'pending',
+        created_at: response.data.created_at || new Date().toISOString(),
+        completed_at: response.data.completed_at || null
       };
     },
     refetchInterval: (query) => {
@@ -55,13 +55,19 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
         throw new Error('No batch number provided');
       }
       const response = await apiClient.get(API_ENDPOINTS.task.questions(batchNo));
-      const tasks = response.data;
-      return tasks.map((task: any) => ({
+      console.log('Sub tasks response:', response.data);
+      
+      if (!Array.isArray(response.data)) {
+        console.warn('Unexpected sub tasks response format:', response.data);
+        return [];
+      }
+
+      return response.data.map((task: any) => ({
         id: task.id || 0,
         question_no: task.question_no || '',
         origin_question: task.origin_question || '',
         status: task.status || 'pending',
-        result: task.result,
+        result: task.result || '',
         created_at: task.created_at || new Date().toISOString(),
         progress: task.status === 'completed' ? 100 : 
                  task.status === 'running' ? 50 :
@@ -74,7 +80,7 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    enabled: !!batchNo && mainTask?.status === 'running',
+    enabled: !!batchNo,
   });
 
   const {
@@ -88,11 +94,11 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
         throw new Error('No batch number provided');
       }
       const response = await apiClient.get(API_ENDPOINTS.task.summary(batchNo));
-      const data = response.data;
+      console.log('Summary response:', response.data);
       return {
-        summary_question: data.summary_question || '',
-        summary_answer: data.summary_answer || '',
-        status: data.status || 'pending'
+        summary_question: response.data.summary_question || '',
+        summary_answer: response.data.summary_answer || '',
+        status: response.data.status || 'pending'
       };
     },
     refetchInterval: (query) => {
@@ -101,8 +107,16 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    enabled: !!batchNo && Array.isArray(subTasks) && subTasks.length > 0 && 
-      subTasks.every(task => task.status === 'completed' || task.status === 'failed'),
+    enabled: !!batchNo,
+  });
+
+  // 添加调试日志
+  console.log('Task polling state:', {
+    mainTask,
+    subTasks,
+    summary,
+    isLoading: isMainTaskLoading || isSubTasksLoading || isSummaryLoading,
+    error: mainTaskError || subTasksError || summaryError
   });
 
   return {

@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
     apiKeyLogs: '/admin/api-keys/logs',
   },
   task: {
+    list: '/tasks',
     status: (batchNo: string) => `/task/${batchNo}/status`,
     questions: (batchNo: string) => `/task/${batchNo}/questions`,
     summary: (batchNo: string) => `/task/${batchNo}/summary`,

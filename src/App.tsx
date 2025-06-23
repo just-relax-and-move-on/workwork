@@ -9,6 +9,10 @@ import {
   BarChartOutlined,
   FileSearchOutlined,
   LogoutOutlined,
+  DashboardOutlined,
+  ApartmentOutlined,
+  SearchOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons';
 
 import Dashboard from './pages/Dashboard';
@@ -19,14 +23,16 @@ import EfficiencyScore from './pages/EfficiencyScore';
 import TaskMonitor from './pages/TaskMonitor';
 import ApiKeyAuth from './pages/ApiKeyAuth';
 import { useApiKey } from './hooks/useApiKey';
+import BatchQuery from '@/pages/BatchQuery';
+import TaskList from '@/pages/TaskList';
 
 const { Header, Content, Sider } = Layout;
 
 const menuItems = [
   {
     key: '/dashboard',
-    icon: <PieChartOutlined />,
-    label: <Link to="/dashboard">问题监控看板</Link>,
+    icon: <DashboardOutlined />,
+    label: <Link to="/dashboard">首页</Link>,
   },
   {
     key: '/trend',
@@ -35,13 +41,13 @@ const menuItems = [
   },
   {
     key: '/case',
-    icon: <SolutionOutlined />,
+    icon: <FileSearchOutlined />,
     label: <Link to="/case">案例管理</Link>,
   },
   {
     key: '/ai',
     icon: <RobotOutlined />,
-    label: <Link to="/ai">AI智能建议</Link>,
+    label: <Link to="/ai">AI推荐</Link>,
   },
   {
     key: '/efficiency',
@@ -50,8 +56,13 @@ const menuItems = [
   },
   {
     key: '/task',
-    icon: <FileSearchOutlined />,
-    label: <Link to="/task">尽调助手</Link>,
+    icon: <ApartmentOutlined />,
+    label: <Link to="/task">任务监控</Link>,
+  },
+  {
+    key: '/task-list',
+    icon: <UnorderedListOutlined />,
+    label: <Link to="/task-list">任务列表</Link>,
   },
 ];
 
@@ -79,6 +90,8 @@ function AppLayout() {
   const currentPath = location.pathname.split('/')[1] || 'dashboard';
   const isEfficiencyScore = location.pathname.startsWith('/efficiency-score/');
   const isTaskMonitor = location.pathname.startsWith('/task/');
+  const isBatchQuery = location.pathname.startsWith('/batch-query/');
+  const isTaskList = location.pathname.startsWith('/task-list');
   const { removeApiKey } = useApiKey();
 
   const handleLogout = () => {
@@ -95,7 +108,13 @@ function AppLayout() {
         <Menu
           theme="dark"
           mode="inline"
-          selectedKeys={[isEfficiencyScore ? '/efficiency' : isTaskMonitor ? '/task' : `/${currentPath}`]}
+          selectedKeys={[
+            isEfficiencyScore ? '/efficiency' : 
+            isTaskMonitor ? '/task' : 
+            isBatchQuery ? '/task-list' :
+            isTaskList ? '/task-list' :
+            `/${currentPath}`
+          ]}
           items={menuItems}
         />
       </Sider>
@@ -113,6 +132,8 @@ function AppLayout() {
             <Route path="/efficiency" element={<EfficiencyScore />} />
             <Route path="/efficiency-score/:id" element={<EfficiencyScore />} />
             <Route path="/task" element={<TaskMonitor />} />
+            <Route path="/task-list" element={<TaskList />} />
+            <Route path="/batch-query/:batchNo" element={<BatchQuery />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Content>

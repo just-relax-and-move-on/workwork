@@ -107,7 +107,7 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    enabled: !!batchNo,
+    enabled: !!batchNo && mainTask?.status === 'completed',
   });
 
   // 添加调试日志

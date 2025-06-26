@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Spin, Alert, Typography, Space, Tag, Button } from 'antd';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';

@@ -16,6 +16,10 @@ export interface SubTask {
   status: TaskStatus;
   result?: string;
   created_at: string;
+  progress?: number;
+  error?: string;
+  title?: string;
+  updated_at?: string;
 }
 
 export interface TaskSummary {

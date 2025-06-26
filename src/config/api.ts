@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { message } from 'antd';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
 export const API_ENDPOINTS = {
   auth: {
@@ -16,6 +16,10 @@ export const API_ENDPOINTS = {
     status: (batchNo: string) => `/task/${batchNo}/status`,
     questions: (batchNo: string) => `/task/${batchNo}/questions`,
     summary: (batchNo: string) => `/task/${batchNo}/summary`,
+  },
+  dueDiligence: {
+    generateQuestions: (batchNo: string) => `/generate_questions/${batchNo}`,
+    getQuestions: (batchNo: string) => `/get_generate_questions/${batchNo}`,
   },
 };
 

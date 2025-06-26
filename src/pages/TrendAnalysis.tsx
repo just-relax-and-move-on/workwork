@@ -64,14 +64,14 @@ const trendConfig = {
   smooth: true, // 关键配置
 };
 
-const barConfig = {
-  data: barTop10,
-  xField: 'problem',
-  yField: 'value',
-  label: { position: 'middle', style: { fill: '#fff', opacity: 0.8 } },
-  meta: { problem: { alias: '问题类型' }, value: { alias: '总量' } },
-  tooltip: { fields: ['problem', 'value'] },
-};
+// const barConfig = {
+//   data: barTop10,
+//   xField: 'problem',
+//   yField: 'value',
+//   label: { position: 'middle', style: { fill: '#fff', opacity: 0.8 } },
+//   meta: { problem: { alias: '问题类型' }, value: { alias: '总量' } },
+//   tooltip: { fields: ['problem', 'value'] },
+// };
 
 // 只取前5问题
 type GroupBarDatum = { problem: string; month: string; value: number };

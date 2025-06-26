@@ -17,6 +17,16 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
+      },
+      '^/generate_questions/.*': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '^/get_generate_questions/.*': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
       }
     },
   },

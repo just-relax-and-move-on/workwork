@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Progress, Tag, Typography } from 'antd';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
-import { SubTask } from '@/types';
+import { SubTask } from '@/types/task';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 

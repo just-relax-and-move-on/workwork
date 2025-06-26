@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { Pie } from '@ant-design/charts';
 
 export default function TestPie() {

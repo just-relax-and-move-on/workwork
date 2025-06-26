@@ -28,4 +28,17 @@ export interface AuthResponse {
 export interface ApiError {
   status: number;
   message: string;
+}
+
+export interface DueDiligenceQuestion {
+  seq: number;
+  question: string;
+  person: string;
+  action: string;
+  topic: string;
+}
+
+export interface DueDiligenceResponse {
+  status: 'pending' | 'created' | 'running' | 'completed' | 'failed' | 'not_found';
+  questions?: DueDiligenceQuestion[] | null;
 } 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Progress, Timeline, Table, Tag, Button, Space, Tooltip, Typography } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined, ExportOutlined, MailOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, ExportOutlined, MailOutlined } from '@ant-design/icons';
 import { Pie } from '@ant-design/charts';
 import { useParams, useNavigate } from 'react-router-dom';
 

@@ -2,16 +2,13 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import {
-  PieChartOutlined,
   LineChartOutlined,
-  SolutionOutlined,
   RobotOutlined,
   BarChartOutlined,
   FileSearchOutlined,
   LogoutOutlined,
   DashboardOutlined,
   ApartmentOutlined,
-  SearchOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons';
 
@@ -25,6 +22,7 @@ import ApiKeyAuth from './pages/ApiKeyAuth';
 import { useApiKey } from './hooks/useApiKey';
 import BatchQuery from '@/pages/BatchQuery';
 import TaskList from '@/pages/TaskList';
+import DueDiligence from '@/pages/DueDiligence';
 
 const { Header, Content, Sider } = Layout;
 
@@ -134,6 +132,7 @@ function AppLayout() {
             <Route path="/task" element={<TaskMonitor />} />
             <Route path="/task-list" element={<TaskList />} />
             <Route path="/batch-query/:batchNo" element={<BatchQuery />} />
+            <Route path="/due-diligence/:batchNo" element={<DueDiligence />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Content>

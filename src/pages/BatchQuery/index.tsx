@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card, Spin, Alert, Typography, Space, Tag, Button } from 'antd';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import SubTaskCard from '@/components/SubTaskCard';
 import TaskSummary from '@/components/TaskSummary';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, BulbOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -42,15 +42,15 @@ const StatusTag = styled(Tag)<{ status: string }>`
   }}
 `;
 
-// 调试信息样式组件
-const DebugInfo = styled.div`
-  margin: 16px 0;
-  padding: 16px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  font-family: monospace;
-  white-space: pre-wrap;
-`;
+// 调试信息样式组件 - 暂时注释掉
+// const DebugInfo = styled.div`
+//   margin: 16px 0;
+//   padding: 16px;
+//   background-color: #f5f5f5;
+//   border-radius: 4px;
+//   font-family: monospace;
+//   white-space: pre-wrap;
+// `;
 
 const BatchQuery: React.FC = () => {
   const { batchNo } = useParams<{ batchNo: string }>();
@@ -163,6 +163,21 @@ const BatchQuery: React.FC = () => {
           )}
         </Space>
       </Card>
+      
+      {/* 尽调建议按钮 - 放在页面最底部 */}
+      {batchNo && (
+        <Card style={{ marginTop: '24px', textAlign: 'center' }}>
+          <Button
+            type="primary"
+            size="large"
+            icon={<BulbOutlined />}
+            onClick={() => navigate(`/due-diligence/${batchNo}`)}
+            style={{ minWidth: '160px' }}
+          >
+            尽调建议
+          </Button>
+        </Card>
+      )}
     </Container>
   );
 };

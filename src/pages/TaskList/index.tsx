@@ -36,7 +36,7 @@ const TaskList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  const { data: taskListData, isLoading, error } = useQuery<TaskListResponse>({
+  const { data: taskListData, isLoading } = useQuery<TaskListResponse>({
     queryKey: ['taskList', currentPage, pageSize, searchText],
     queryFn: async () => {
       const params = new URLSearchParams({

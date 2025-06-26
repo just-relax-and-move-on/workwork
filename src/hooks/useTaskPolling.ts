@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { MainTask, SubTask, TaskSummary } from '@/types/task';
 import { API_ENDPOINTS } from '@/config/api';
 import apiClient from '@/config/api';
@@ -12,7 +12,7 @@ interface UseTaskPollingResult {
 }
 
 export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   const {
     data: mainTask,

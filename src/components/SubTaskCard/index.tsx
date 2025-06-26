@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Progress, Tag, Typography } from 'antd';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { SubTask } from '@/types/task';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { DownOutlined, RightOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -12,6 +13,37 @@ const StyledCard = styled(Card)`
   margin-bottom: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+`;
+
+const CollapsedHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+`;
+
+const ExpandIcon = styled.div`
+  transition: transform 0.3s ease;
+  color: #666;
+  font-size: 12px;
+`;
+
+const TaskTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+`;
+
+const ExpandedContent = styled.div`
+  padding: 0 16px 16px;
+  border-top: 1px solid #f0f0f0;
 `;
 
 const StatusTag = styled(Tag)<{ status: string }>`
@@ -137,6 +169,12 @@ interface SubTaskCardProps {
 }
 
 const SubTaskCard: React.FC<SubTaskCardProps> = ({ task }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const toggleExpanded = () => {
+    setExpanded(!expanded);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -144,28 +182,40 @@ const SubTaskCard: React.FC<SubTaskCardProps> = ({ task }) => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <StyledCard>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <Text strong>{task.origin_question}</Text>
+      <StyledCard onClick={toggleExpanded}>
+        {/* 收起状态下的头部 - 始终显示 */}
+        <CollapsedHeader>
+          <TaskTitle>
+            <ExpandIcon style={{ transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+              <DownOutlined />
+            </ExpandIcon>
+            <Text strong style={{ flex: 1 }}>{task.origin_question}</Text>
+          </TaskTitle>
           <StatusTag status={task.status}>{task.status}</StatusTag>
-        </div>
+        </CollapsedHeader>
         
-        <Progress 
-          percent={task.progress} 
-          size="small" 
-          status={task.status === 'failed' ? 'exception' : undefined}
-        />
-        
-        {task.status === 'completed' && task.result && (
-          <MarkdownContent>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {task.result}
-            </ReactMarkdown>
-          </MarkdownContent>
-        )}
-        
-        {task.status === 'failed' && task.error && (
-          <Text type="danger">{task.error}</Text>
+        {/* 展开状态下的详细内容 */}
+        {expanded && (
+          <ExpandedContent>
+            <Progress 
+              percent={task.progress} 
+              size="small" 
+              status={task.status === 'failed' ? 'exception' : undefined}
+              style={{ marginBottom: 16 }}
+            />
+            
+            {task.status === 'completed' && task.result && (
+              <MarkdownContent>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {task.result}
+                </ReactMarkdown>
+              </MarkdownContent>
+            )}
+            
+            {task.status === 'failed' && task.error && (
+              <Text type="danger">{task.error}</Text>
+            )}
+          </ExpandedContent>
         )}
       </StyledCard>
     </motion.div>

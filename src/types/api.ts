@@ -36,6 +36,7 @@ export interface DueDiligenceQuestion {
   person: string;
   action: string;
   topic: string;
+  risk_tag: string[];
 }
 
 export interface DueDiligenceResponse {

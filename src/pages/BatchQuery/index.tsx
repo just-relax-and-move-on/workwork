@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Spin, Alert, Typography, Space, Tag, Button } from 'antd';
 import { AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import SubTaskCard from '@/components/SubTaskCard';
 import TaskSummary from '@/components/TaskSummary';
-import { ArrowLeftOutlined, BulbOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, BulbOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -52,10 +52,24 @@ const StatusTag = styled(Tag)<{ status: string }>`
 //   white-space: pre-wrap;
 // `;
 
+const SubTasksHeaderWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  cursor: pointer;
+  padding: 8px 0;
+  
+  &:hover {
+    color: #1890ff;
+  }
+`;
+
 const BatchQuery: React.FC = () => {
   const { batchNo } = useParams<{ batchNo: string }>();
   const navigate = useNavigate();
   const { mainTask, subTasks, summary, isLoading, error } = useTaskPolling(batchNo || '');
+  const [subTasksExpanded, setSubTasksExpanded] = useState(false);
 
   // 调试日志
   useEffect(() => {
@@ -129,12 +143,24 @@ const BatchQuery: React.FC = () => {
 
               {Array.isArray(subTasks) && subTasks.length > 0 ? (
                 <div>
-                  <Title level={5}>子任务列表</Title>
-                  <AnimatePresence>
-                    {subTasks.map((task) => (
-                      <SubTaskCard key={task.id} task={task} />
-                    ))}
-                  </AnimatePresence>
+                  <SubTasksHeaderWrapper onClick={() => setSubTasksExpanded(!subTasksExpanded)}>
+                    <Title level={5} style={{ margin: 0 }}>
+                      子任务列表 ({subTasks.length})
+                    </Title>
+                    <Button
+                      type="text"
+                      icon={subTasksExpanded ? <UpOutlined /> : <DownOutlined />}
+                      size="small"
+                    />
+                  </SubTasksHeaderWrapper>
+                  
+                  {subTasksExpanded && (
+                    <AnimatePresence>
+                      {subTasks.map((task) => (
+                        <SubTaskCard key={task.id} task={task} />
+                      ))}
+                    </AnimatePresence>
+                  )}
                 </div>
               ) : (
                 <Alert

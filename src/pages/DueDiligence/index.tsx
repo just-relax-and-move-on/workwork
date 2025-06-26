@@ -148,6 +148,20 @@ const DueDiligence: React.FC = () => {
                   <Text>{question.action}</Text>
                 </div>
               </div>
+              
+              {/* 风险标签 */}
+              {question.risk_tag && question.risk_tag.length > 0 && (
+                <div>
+                  <Text type="secondary" style={{ marginRight: 8 }}>风险标签：</Text>
+                  <Space size={4} wrap>
+                    {question.risk_tag.map((tag, tagIndex) => (
+                      <Tag key={tagIndex} color="red" size="small">
+                        {tag}
+                      </Tag>
+                    ))}
+                  </Space>
+                </div>
+              )}
             </Space>
           </QuestionCard>
         </motion.div>

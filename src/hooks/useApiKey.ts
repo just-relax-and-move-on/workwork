@@ -4,29 +4,31 @@ import { message } from 'antd';
 import apiClient from '@/config/api';
 import { API_ENDPOINTS } from '@/config/api';
 
-const API_KEY_STORAGE_KEY = 'api_key';
+const AUTH_TOKEN_STORAGE_KEY = 'auth_token';
 
 export const useApiKey = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const storedApiKey = sessionStorage.getItem(API_KEY_STORAGE_KEY);
-    if (storedApiKey) {
-      setApiKey(storedApiKey);
+    const storedToken = sessionStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+    if (storedToken) {
+      setAuthToken(storedToken);
     }
   }, []);
 
-  const setApiKeyAndStore = useCallback((key: string) => {
-    setApiKey(key);
-    sessionStorage.setItem(API_KEY_STORAGE_KEY, key);
+  const setTokenAndStore = useCallback((token: string) => {
+    setAuthToken(token);
+    sessionStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
     // 验证成功后立即跳转到 dashboard
     window.location.href = '/dashboard';
   }, []);
 
   const removeApiKey = useCallback(() => {
     setApiKey(null);
-    sessionStorage.removeItem(API_KEY_STORAGE_KEY);
+    setAuthToken(null);
+    sessionStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
   }, []);
 
   const validateApiKey = useCallback(async (key: string): Promise<boolean> => {
@@ -39,22 +41,25 @@ export const useApiKey = () => {
       });
 
       if (response.data && response.data.token) {
-        setApiKeyAndStore(key);
-        message.success('API Key 验证成功');
+        // 保存API Key用于显示，保存token用于后续请求
+        setApiKey(key);
+        setTokenAndStore(response.data.token);
+        message.success('登录成功');
         return true;
       } else {
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      message.error(error instanceof Error ? error.message : 'API Key 验证失败');
+      message.error(error instanceof Error ? error.message : '登录失败');
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [setApiKeyAndStore]);
+  }, [setTokenAndStore]);
 
   return {
     apiKey,
+    authToken,
     isLoading,
     validateApiKey,
     removeApiKey,

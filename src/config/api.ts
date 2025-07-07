@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   },
   task: {
     list: '/tasks',
+    start: '/start_task',
     status: (batchNo: string) => `/task/${batchNo}/status`,
     questions: (batchNo: string) => `/task/${batchNo}/questions`,
     summary: (batchNo: string) => `/task/${batchNo}/summary`,
@@ -42,13 +43,13 @@ apiClient.interceptors.request.use(
       data: config.data
     });
     
-    // 从 sessionStorage 获取 API Key
-    const apiKey = sessionStorage.getItem('api_key');
-    if (apiKey) {
+    // 从 sessionStorage 获取认证Token
+    const authToken = sessionStorage.getItem('auth_token');
+    if (authToken) {
       // 确保 headers 对象存在
       config.headers = config.headers || {};
-      // 添加 API Key 到请求头
-      config.headers['X-API-Key'] = apiKey;
+      // 添加 Bearer Token 到请求头
+      config.headers['Authorization'] = `Bearer ${authToken}`;
     }
     return config;
   },
@@ -81,8 +82,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          message.error('API Key 无效或已过期');
-          sessionStorage.removeItem('api_key');
+          message.error('认证Token无效或已过期');
+          sessionStorage.removeItem('auth_token');
           window.location.href = '/auth';
           break;
         case 403:

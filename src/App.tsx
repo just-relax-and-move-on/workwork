@@ -66,16 +66,16 @@ const menuItems = [
 
 // 路由守卫组件
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { apiKey } = useApiKey();
+  const { authToken } = useApiKey();
   const location = useLocation();
 
-  // 如果没有 API Key 且不在认证页面，重定向到认证页面
-  if (!apiKey && location.pathname !== '/auth') {
+  // 如果没有认证Token且不在认证页面，重定向到认证页面
+  if (!authToken && location.pathname !== '/auth') {
     return <Navigate to="/auth" replace />;
   }
 
-  // 如果有 API Key 且在认证页面，重定向到 dashboard
-  if (apiKey && location.pathname === '/auth') {
+  // 如果有认证Token且在认证页面，重定向到 dashboard
+  if (authToken && location.pathname === '/auth') {
     return <Navigate to="/dashboard" replace />;
   }
 

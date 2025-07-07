@@ -5,8 +5,7 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined, BulbOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// import apiClient from '@/config/api';
-import { API_ENDPOINTS } from '@/config/api';
+import apiClient, { API_ENDPOINTS } from '@/config/api';
 import type { DueDiligenceResponse, DueDiligenceQuestion } from '@/types/api';
 
 const { Title, Text, Paragraph } = Typography;
@@ -43,28 +42,31 @@ const DueDiligence: React.FC = () => {
     queryFn: async () => {
       if (!batchNo) throw new Error('批次号不能为空');
       
-      const response = await fetch(API_ENDPOINTS.dueDiligence.getQuestions(batchNo), {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
+      try {
+        // get_generate_questions 接口有独立的代理配置，不走 /api 前缀
+        const response = await apiClient.get(API_ENDPOINTS.dueDiligence.getQuestions(batchNo), {
+          baseURL: '' // 覆盖默认的 baseURL
+        });
+        
+        // 如果后端返回空对象 {} 或没有status字段，说明没有数据，显示生成按钮
+        if (!response.data || !response.data.status) {
+          return {
+            status: 'not_found',
+            questions: null
+          };
         }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`获取问题失败: ${response.status}`);
+        
+        return response.data;
+      } catch (error) {
+        // 如果是404错误，返回not_found状态
+        if (error.response?.status === 404) {
+          return {
+            status: 'not_found',
+            questions: null
+          };
+        }
+        throw error;
       }
-      
-      const data = await response.json();
-      
-      // 如果后端返回空对象 {} 或没有status字段，说明没有数据，显示生成按钮
-      if (!data || !data.status) {
-        return {
-          status: 'not_found',
-          questions: null
-        };
-      }
-      
-      return data;
     },
     refetchInterval: (query) => {
       const data = query.state.data;
@@ -83,18 +85,12 @@ const DueDiligence: React.FC = () => {
     mutationFn: async () => {
       if (!batchNo) throw new Error('批次号不能为空');
       
-      const response = await fetch(API_ENDPOINTS.dueDiligence.generateQuestions(batchNo), {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-        }
+      // generate_questions 接口有独立的代理配置，不走 /api 前缀
+      const response = await apiClient.get(API_ENDPOINTS.dueDiligence.generateQuestions(batchNo), {
+        baseURL: '' // 覆盖默认的 baseURL
       });
       
-      if (!response.ok) {
-        throw new Error('生成问题失败');
-      }
-      
-      return response.json();
+      return response.data;
     },
     onSuccess: () => {
       // 等待5秒后再开始查询，给后端时间写入数据

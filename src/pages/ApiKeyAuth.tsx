@@ -27,8 +27,8 @@ const ApiKeyAuth: React.FC = () => {
       <Card style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div style={{ textAlign: 'center' }}>
-            <Title level={2}>API Key 认证</Title>
-            <Text type="secondary">请输入您的 API Key 以继续访问系统</Text>
+            <Title level={2}>用户认证</Title>
+            <Text type="secondary">请输入您的 API Key，系统将为您生成访问令牌</Text>
           </div>
           
           <Input.Password

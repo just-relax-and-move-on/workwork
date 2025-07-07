@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Input, Button, Card, Space, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
+import apiClient, { API_ENDPOINTS } from '@/config/api';
 
 const StyledCard = styled(Card)`
   margin-bottom: 24px;
@@ -24,32 +25,21 @@ const TaskInput: React.FC<TaskInputProps> = ({ onStartTask }) => {
     setLoading(true);
     try {
       console.log('Sending request to:', `/start_task/?company_name=${encodeURIComponent(inputValue)}`);
-      const response = await fetch(`/start_task/?company_name=${encodeURIComponent(inputValue)}`, {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-        }
+      // start_task 接口有独立的代理配置，不走 /api 前缀
+      const response = await apiClient.get(`/start_task/?company_name=${encodeURIComponent(inputValue)}`, {
+        baseURL: '' // 覆盖默认的 baseURL
       });
       
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error('Error response:', errorData);
-        throw new Error(errorData?.detail || '启动任务失败');
-      }
-      
-      const data = await response.json();
-      console.log('Success response:', data);
+      console.log('Success response:', response.data);
       message.success('任务已开始执行');
-      onStartTask(data.batch_no);
+      onStartTask(response.data.batch_no);
     } catch (error) {
       console.error('Task start error:', error);
-      if (error instanceof TypeError) {
-        console.error('Network error details:', error.message);
+      // apiClient 已经在拦截器中处理了错误消息显示
+      // 这里只需要处理特殊情况
+      if (error instanceof Error && !error.message.includes('401')) {
+        message.error(error.message || '启动任务失败，请重试');
       }
-      message.error(error instanceof Error ? error.message : '启动任务失败，请重试');
     } finally {
       setLoading(false);
     }

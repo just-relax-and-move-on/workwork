@@ -32,6 +32,16 @@ const apiClient = axios.create({
 // 请求拦截器
 apiClient.interceptors.request.use(
   (config) => {
+    // 打印请求日志
+    console.log('🚀 API请求:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      headers: config.headers,
+      data: config.data
+    });
+    
     // 从 sessionStorage 获取 API Key
     const apiKey = sessionStorage.getItem('api_key');
     if (apiKey) {
@@ -43,14 +53,31 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('❌ API请求错误:', error);
     return Promise.reject(error);
   }
 );
 
 // 响应拦截器
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // 打印响应日志
+    console.log('✅ API响应:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
   (error) => {
+    // 打印错误日志
+    console.error('❌ API响应错误:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      message: error.message,
+      response: error.response?.data
+    });
+    
     if (error.response) {
       switch (error.response.status) {
         case 401:

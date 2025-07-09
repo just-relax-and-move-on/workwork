@@ -43,10 +43,8 @@ const DueDiligence: React.FC = () => {
       if (!batchNo) throw new Error('批次号不能为空');
       
       try {
-        // get_generate_questions 接口有独立的代理配置，不走 /api 前缀
-        const response = await apiClient.get(API_ENDPOINTS.dueDiligence.getQuestions(batchNo), {
-          baseURL: '' // 覆盖默认的 baseURL
-        });
+        // get_generate_questions 接口现在走 /api 前缀
+        const response = await apiClient.get(API_ENDPOINTS.dueDiligence.getQuestions(batchNo));
         
         // 如果后端返回空对象 {} 或没有status字段，说明没有数据，显示生成按钮
         if (!response.data || !response.data.status) {
@@ -85,10 +83,8 @@ const DueDiligence: React.FC = () => {
     mutationFn: async () => {
       if (!batchNo) throw new Error('批次号不能为空');
       
-      // generate_questions 接口有独立的代理配置，不走 /api 前缀
-      const response = await apiClient.get(API_ENDPOINTS.dueDiligence.generateQuestions(batchNo), {
-        baseURL: '' // 覆盖默认的 baseURL
-      });
+      // generate_questions 接口现在走 /api 前缀
+      const response = await apiClient.get(API_ENDPOINTS.dueDiligence.generateQuestions(batchNo));
       
       return response.data;
     },

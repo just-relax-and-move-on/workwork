@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { SubTask } from '@/types/task';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import { DownOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 

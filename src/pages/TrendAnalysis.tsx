@@ -46,13 +46,10 @@ const sortedProblems = Object.entries(totalMap)
   .map(([problem]) => problem);
 
 const top5Problems = sortedProblems.slice(0, 5);
-const top10Problems = sortedProblems.slice(0, 10);
+
 
 const trendTop5 = trendData.filter(d => top5Problems.includes(d.problem));
-const barTop10 = top10Problems.map(problem => ({
-  problem,
-  value: totalMap[problem],
-}));
+
 
 const trendConfig = {
   data: trendTop5,
@@ -94,7 +91,7 @@ const groupBarConfig = {
   seriesField: 'month',
   color: ['#1890ff', '#f5222d'], // 修改为固定颜色数组
   label: {
-    content: (originData: GroupBarDatum) => originData.value,
+    formatter: (datum: any) => datum.value,
     style: { fill: '#fff', opacity: 0.8 },
   },
   meta: {

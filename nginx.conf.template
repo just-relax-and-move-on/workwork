@@ -1,0 +1,57 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # 定义上游服务器 (这里需要在运行时替换)
+    upstream backend {
+        server ${API_HOST}:${API_PORT};
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        # 设置根目录
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        # 静态文件缓存
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+
+        # API 代理
+        location /api/ {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_connect_timeout 300;
+            proxy_send_timeout 300;
+            proxy_read_timeout 300;
+        }
+
+        # start_task 端点代理
+        location /start_task {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # React 应用路由 (SPA)
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # 处理 404 错误
+        error_page 404 /index.html;
+    }
+} 

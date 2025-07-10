@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input, Button, Card, Space, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import apiClient, { API_ENDPOINTS } from '@/config/api';
+import apiClient from '@/config/api';
 
 const StyledCard = styled(Card)`
   margin-bottom: 24px;

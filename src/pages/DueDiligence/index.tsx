@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card, Spin, Alert, Typography, Space, Button, Progress, List, Tag, Empty } from 'antd';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
@@ -34,7 +34,7 @@ const DueDiligence: React.FC = () => {
   const { batchNo } = useParams<{ batchNo: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [pollingEnabled, setPollingEnabled] = useState(false);
+
 
   // 获取现有问题
   const { data: questionsData, isLoading: isLoadingQuestions, error: questionsError, refetch } = useQuery<DueDiligenceResponse>({
@@ -57,7 +57,7 @@ const DueDiligence: React.FC = () => {
         return response.data;
       } catch (error) {
         // 如果是404错误，返回not_found状态
-        if (error.response?.status === 404) {
+        if ((error as any).response?.status === 404) {
           return {
             status: 'not_found',
             questions: null
@@ -96,12 +96,13 @@ const DueDiligence: React.FC = () => {
     },
   });
 
-  // 监听状态变化，自动开启/关闭轮询
+  // 监听状态变化
   useEffect(() => {
+    // 状态变化时的处理逻辑
     if (questionsData?.status === 'created' || questionsData?.status === 'running') {
-      setPollingEnabled(true);
+      console.log('Task is running');
     } else {
-      setPollingEnabled(false);
+      console.log('Task is not running');
     }
   }, [questionsData?.status]);
 
@@ -147,7 +148,7 @@ const DueDiligence: React.FC = () => {
                   <Text type="secondary" style={{ marginRight: 8 }}>风险标签：</Text>
                   <Space size={4} wrap>
                     {question.risk_tag.map((tag, tagIndex) => (
-                      <Tag key={tagIndex} color="red" size="small">
+                      <Tag key={tagIndex} color="red">
                         {tag}
                       </Tag>
                     ))}

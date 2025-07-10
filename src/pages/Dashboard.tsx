@@ -236,8 +236,8 @@ const Dashboard: React.FC = () => {
         opacity: 0.8,
       },
     },
-    color: ({ branch }: { branch: Branch }) =>
-      branch === selectedBranch ? '#f5222d' : '#1890ff', // 高亮选中分行
+    color: (datum: any) =>
+      datum.branch === selectedBranch ? '#f5222d' : '#1890ff', // 高亮选中分行
     meta: {
       branch: { alias: '分行' },
       value: { alias: '问题数量' },

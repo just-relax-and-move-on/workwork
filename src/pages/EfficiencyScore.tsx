@@ -107,18 +107,18 @@ const EfficiencyScore: React.FC = () => {
     width: 240,
     height: 240,
     color: ['#1890ff', '#f0f0f0'], // 主色+灰色
-    legend: false,
-    label: false,
+    legend: false as const,
+    label: false as const,
     statistic: {
-      title: false,
+      title: false as const,
       content: {
         style: {
-          fontSize: 40,
+          fontSize: '40px',
           fontWeight: 'bold',
-          lineHeight: 1,
+          lineHeight: '1',
           color: '#1890ff',
         },
-        content: `${businessInfo.efficiencyScore}`,
+        formatter: () => `${businessInfo.efficiencyScore}`,
       },
     },
   };

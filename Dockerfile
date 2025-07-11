@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:18-alpine AS builder
+FROM registry.cn-hangzhou.aliyuncs.com/ideatech_public/node:22-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # 生产阶段
-FROM nginx:alpine
+FROM nginx:1.25-alpine
 
 # 安装 gettext 包 (提供 envsubst 命令)
 RUN apk add --no-cache gettext

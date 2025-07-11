@@ -62,7 +62,7 @@ pipeline {
                             -p 3000:80 \
                             -e TZ=Asia/Shanghai \
                             -e LANG=zh_CN.UTF-8 \
-                            -e API_HOST=120.27.220.97 \
+                            -e API_HOST=172.16.143.10 \
                             -e API_PORT=9000 \
                             ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${DOCKER_TAG}
                         echo "部署完成时间: $(date '+%Y-%m-%d %H:%M:%S %Z')"

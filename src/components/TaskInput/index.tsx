@@ -15,7 +15,7 @@ interface TaskInputProps {
 const TaskInput: React.FC<TaskInputProps> = ({ onStartTask }) => {
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<number | null>(null);
   const lastRequestRef = useRef<string>('');
 
   const executeSearch = async (companyName: string) => {

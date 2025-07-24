@@ -71,7 +71,8 @@ export const useTaskPolling = (batchNo: string): UseTaskPollingResult => {
         created_at: task.created_at || new Date().toISOString(),
         progress: task.status === 'completed' ? 100 : 
                  task.status === 'running' ? 50 :
-                 task.status === 'failed' ? 0 : 0
+                 task.status === 'failed' ? 0 : 0,
+        has_valid_data: typeof task.has_valid_data !== 'undefined' ? task.has_valid_data : undefined,
       }));
     },
     refetchInterval: (query) => {

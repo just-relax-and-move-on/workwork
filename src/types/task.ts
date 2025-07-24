@@ -20,6 +20,7 @@ export interface SubTask {
   error?: string;
   title?: string;
   updated_at?: string;
+  has_valid_data?: number; // 1: 有效内容, 0: 无内容
 }
 
 export interface TaskSummary {

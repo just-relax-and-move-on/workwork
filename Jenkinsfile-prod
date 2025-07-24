@@ -1,0 +1,211 @@
+pipeline {
+    agent any
+
+    environment {
+        TZ = 'Asia/Shanghai'
+        LANG = 'zh_CN.UTF-8'
+        
+        // 镜像配置
+        DOCKER_REGISTRY = 'registry-vpc.cn-hangzhou.aliyuncs.com'
+        DOCKER_NAMESPACE = 'ideatech_square'
+        DOCKER_IMAGE = 'llm-infr-front'
+        
+        // 生成部署时间戳
+        DEPLOY_TIMESTAMP = sh(script: "date '+%Y%m%d-%H%M%S'", returnStdout: true).trim()
+        
+        // K8s配置
+        K8S_NAMESPACE = 'llm-infr'
+        K8S_DEPLOYMENT_NAME = 'llm-infr-front-deployment'
+        
+        // 前端环境配置
+        NODE_ENV = 'production'
+    }
+
+    parameters {
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: 'latest',
+            description: '选择要部署的镜像标签'
+        )
+        text(
+            name: 'DEPLOY_NOTES',
+            defaultValue: '',
+            description: '部署说明（可选）'
+        )
+    }
+
+    stages {
+        stage('环境检查') {
+            steps {
+                script {
+                    echo "=== 前端部署环境信息 ==="
+                    echo "镜像标签: ${params.IMAGE_TAG}"
+                    echo "目标镜像: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${params.IMAGE_TAG}"
+                    echo "K8s命名空间: ${K8S_NAMESPACE}"
+                    echo "部署时间: ${DEPLOY_TIMESTAMP}"
+                    if (params.DEPLOY_NOTES) {
+                        echo "部署说明: ${params.DEPLOY_NOTES}"
+                    }
+                    echo "Node环境: ${env.NODE_ENV}"
+                    echo "最终K8s命名空间: ${env.K8S_NAMESPACE}"
+                }
+            }
+        }
+
+        stage('准备K8s部署配置') {
+            steps {
+                sh '''
+                    echo "准备前端K8s部署配置..."
+                    
+                    # 检查k8s配置文件是否存在
+                    if [ ! -d "k8s" ]; then
+                        echo "错误: k8s目录不存在，请确保Jenkins节点上有K8s配置文件"
+                        exit 1
+                    fi
+                    
+                    # 创建临时部署目录
+                    rm -rf k8s-deploy
+                    mkdir -p k8s-deploy
+                    
+                    # 复制K8s配置文件
+                    cp k8s/*.yaml k8s-deploy/
+                    
+                    # 更新deployment配置中的镜像标签
+                    sed -i "s|image: registry.cn-hangzhou.aliyuncs.com/ideatech_square/llm-infr-front:.*|image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${IMAGE_TAG}|g" k8s-deploy/deployment.yaml
+                    
+                    echo "前端K8s配置准备完成:"
+                    echo "目标命名空间: ${K8S_NAMESPACE}"
+                    echo "Node环境: ${NODE_ENV}"
+                    echo "镜像: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${IMAGE_TAG}"
+                    
+                    # 显示最终的deployment配置
+                    echo "\n=== 最终前端Deployment配置 ==="
+                    cat k8s-deploy/deployment.yaml
+                '''
+            }
+        }
+
+        stage('部署到K8s集群') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: '254c062a-8a49-4112-a64e-d5bb267a73c4',  // Docker镜像仓库凭据
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "开始部署前端应用到K8s集群..."
+                        echo "部署时间: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+                        
+                        # 检查kubectl连接
+                        kubectl cluster-info
+                        
+                        # 创建镜像拉取密钥（如果不存在）
+                        kubectl create secret docker-registry regcred \
+                            --docker-server=${DOCKER_REGISTRY} \
+                            --docker-username=${DOCKER_USERNAME} \
+                            --docker-password=${DOCKER_PASSWORD} \
+                            --namespace=${K8S_NAMESPACE} \
+                            --dry-run=client -o yaml | kubectl apply -f -
+                        
+                        # 应用deployment配置
+                        kubectl apply -f k8s-deploy/deployment.yaml
+                        
+                      
+                        # 等待部署完成
+                        echo "等待前端应用部署完成..."
+                        kubectl rollout status deployment/${K8S_DEPLOYMENT_NAME} -n ${K8S_NAMESPACE} --timeout=300s
+                        
+                        # 检查部署状态
+                        echo "\n=== 前端应用部署状态检查 ==="
+                        kubectl get pods -n ${K8S_NAMESPACE} -l app=llm-infr-front
+                        
+                        # 获取Pod日志（最近50行）
+                        echo "\n=== 前端应用日志（最近50行） ==="
+                        kubectl logs -n ${K8S_NAMESPACE} -l app=llm-infr-front --tail=50 || echo "暂无日志或Pod未就绪"
+                        
+                        echo "\n前端应用部署完成时间: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+                    '''
+                }
+            }
+        }
+
+        stage('部署验证') {
+            steps {
+                sh '''
+                    echo "开始前端应用部署验证..."
+                    
+                    # 等待Pod就绪
+                    sleep 30
+                    
+                    # 检查Pod状态
+                    POD_STATUS=$(kubectl get pods -n ${K8S_NAMESPACE} -l app=llm-infr-front -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "Unknown")
+                    echo "前端Pod状态: ${POD_STATUS}"
+                    
+                    if [ "${POD_STATUS}" = "Running" ]; then
+                        echo "✅ 前端应用部署验证成功：Pod正在运行"
+                        
+                        # 获取Pod详细信息
+                        kubectl describe pods -n ${K8S_NAMESPACE} -l app=llm-infr-front | head -20
+                        
+                        # 检查服务端点
+                        echo "\n=== 服务端点信息 ==="
+                        kubectl get endpoints -n ${K8S_NAMESPACE} -l app=llm-infr-front
+                    else
+                        echo "❌ 前端应用部署验证失败：Pod状态异常"
+                        kubectl describe pods -n ${K8S_NAMESPACE} -l app=llm-infr-front
+                        exit 1
+                    fi
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                def endTime = new Date().format('yyyy-MM-dd HH:mm:ss', TimeZone.getTimeZone('Asia/Shanghai'))
+                echo "========================"
+                echo "前端K8s部署流水线执行完成"
+                echo "结束时间: ${endTime}"
+                echo "镜像标签: ${params.IMAGE_TAG}"
+                echo "目标命名空间: ${env.K8S_NAMESPACE}"
+                if (params.DEPLOY_NOTES) {
+                    echo "部署说明: ${params.DEPLOY_NOTES}"
+                }
+                echo "========================"
+            }
+            
+            // 清理临时文件
+            sh '''
+                echo "清理临时文件..."
+                rm -rf k8s-deploy
+                echo "临时文件清理完成"
+            '''
+        }
+        
+        success {
+            echo "🎉 前端K8s部署成功完成！"
+            script {
+                echo "✅ 前端生产环境部署成功"
+                echo "📋 请验证前端应用服务状态"
+                echo "🔍 可通过以下命令检查部署状态:"
+                echo "kubectl get pods -n ${env.K8S_NAMESPACE} -l app=llm-infr-front"
+            }
+        }
+        
+        failure {
+            echo "❌ 前端K8s部署失败，请检查日志"
+            script {
+                echo "失败的镜像标签: ${params.IMAGE_TAG}"
+                echo "目标命名空间: ${env.K8S_NAMESPACE}"
+                echo "🔍 请检查以下内容:"
+                echo "1. 前端镜像是否存在: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${params.IMAGE_TAG}"
+                echo "2. K8s集群连接是否正常"
+                echo "3. 命名空间权限是否充足"
+                echo "4. 前端应用配置是否正确"
+            }
+        }
+    }
+}

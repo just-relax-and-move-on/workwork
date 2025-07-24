@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-infr-front-deployment
+  namespace: llm-infr
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: llm-infr-front
+  template:
+    metadata:
+      labels:
+        app: llm-infr-front
+    spec:
+      containers:
+        - name: llm-infr-front
+          image: registry.cn-hangzhou.aliyuncs.com/ideatech_square/llm-infr-front:7
+          ports:
+            - containerPort: 80
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: LANG
+              value: zh_CN.UTF-8
+            - name: API_HOST
+              value: "llm-infr-service"
+            - name: API_PORT
+              value: "8080"
+      imagePullSecrets:
+        - name: regcred

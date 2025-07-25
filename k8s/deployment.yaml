@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: llm-infr-front
-          image: registry.cn-hangzhou.aliyuncs.com/ideatech_square/llm-infr-front:7
+          image: registry-vpc.cn-hangzhou.aliyuncs.com/ideatech_square/llm-infr-front:7
           ports:
             - containerPort: 80
           env:

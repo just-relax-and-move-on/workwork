@@ -71,7 +71,7 @@ pipeline {
                     cp k8s/*.yaml k8s-deploy/
                     
                     # 更新deployment配置中的镜像标签
-                    sed -i "s|image: registry.cn-hangzhou.aliyuncs.com/ideatech_square/llm-infr-front:.*|image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${IMAGE_TAG}|g" k8s-deploy/deployment.yaml
+                    sed -i "s|image: registry-vpc.cn-hangzhou.aliyuncs.com/ideatech_square/llm-infr-front:.*|image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${DOCKER_IMAGE}:${IMAGE_TAG}|g" k8s-deploy/deployment.yaml
                     
                     echo "前端K8s配置准备完成:"
                     echo "目标命名空间: ${K8S_NAMESPACE}"

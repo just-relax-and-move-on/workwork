@@ -20,7 +20,7 @@ export interface SubTask {
   error?: string;
   title?: string;
   updated_at?: string;
-  has_valid_data?: number; // 1: 有效内容, 0: 无内容
+  has_valid_data?: number; // 1: 有效内容, 0: 无内容 (用于过滤，无内容的子任务不显示)
 }
 
 export interface TaskSummary {

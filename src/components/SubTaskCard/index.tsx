@@ -192,12 +192,6 @@ const SubTaskCard: React.FC<SubTaskCardProps> = ({ task }) => {
             <Text strong style={{ flex: 1 }}>{task.origin_question}</Text>
           </TaskTitle>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* 新增：有效内容/无内容标签 */}
-            {task.has_valid_data === 1 ? (
-              <Tag color="green" style={{ marginRight: 8 }}>查看分析详情</Tag>
-            ) : task.has_valid_data === 0 ? (
-              <Tag color="default" style={{ marginRight: 8 }}>无相关信息</Tag>
-            ) : null}
             <StatusTag status={task.status}>{task.status}</StatusTag>
           </div>
         </CollapsedHeader>

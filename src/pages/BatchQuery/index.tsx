@@ -141,11 +141,11 @@ const BatchQuery: React.FC = () => {
               )}
               */}
 
-              {Array.isArray(subTasks) && subTasks.length > 0 ? (
+              {Array.isArray(subTasks) && subTasks.filter(task => task.has_valid_data !== 0).length > 0 ? (
                 <div>
                   <SubTasksHeaderWrapper onClick={() => setSubTasksExpanded(!subTasksExpanded)}>
                     <Title level={5} style={{ margin: 0 }}>
-                      子任务列表 ({subTasks.length})
+                      子任务列表 ({subTasks.filter(task => task.has_valid_data !== 0).length})
                     </Title>
                     <Button
                       type="text"
@@ -156,7 +156,7 @@ const BatchQuery: React.FC = () => {
                   
                   {subTasksExpanded && (
                     <AnimatePresence>
-                      {subTasks.map((task) => (
+                      {subTasks.filter(task => task.has_valid_data !== 0).map((task) => (
                         <SubTaskCard key={task.id} task={task} />
                       ))}
                     </AnimatePresence>

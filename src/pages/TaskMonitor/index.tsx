@@ -88,7 +88,7 @@ const TaskMonitor: React.FC = () => {
                 <div>
                   <Title level={5}>子任务列表</Title>
                   <AnimatePresence>
-                    {subTasks?.map((task) => (
+                    {subTasks?.filter(task => task.has_valid_data !== 0).map((task) => (
                       <SubTaskCard key={task.id} task={task} />
                     ))}
                   </AnimatePresence>
